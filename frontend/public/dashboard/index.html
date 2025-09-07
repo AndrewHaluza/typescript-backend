@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Course Scheduling System - Dashboard</title>
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 University Course Scheduling System</h1>
+            <div class="student-selector">
+                <label for="studentSelect">Select Student:</label>
+                <select id="studentSelect">
+                    <option value="">Loading students...</option>
+                </select>
+            </div>
+        </header>
+
+        <main>
+            <!-- Student Info Section -->
+            <section class="student-info" id="studentInfo" style="display: none;">
+                <h2>Student Information</h2>
+                <div class="info-card">
+                    <p><strong>Name:</strong> <span id="studentName"></span></p>
+                    <p><strong>Email:</strong> <span id="studentEmail"></span></p>
+                    <p><strong>Student ID:</strong> <span id="studentId"></span></p>
+                </div>
+            </section>
+
+            <!-- Current Schedule Section -->
+            <section class="schedule-section">
+                <div class="section-header">
+                    <h2>📅 Current Schedule</h2>
+                    <div class="schedule-controls">
+                        <select id="semesterSelect">
+                            <option value="Fall">Fall</option>
+                            <option value="Spring">Spring</option>
+                            <option value="Summer">Summer</option>
+                        </select>
+                        <select id="yearSelect">
+                            <option value="2024">2024</option>
+                            <option value="2025">2025</option>
+                        </select>
+                        <button id="refreshSchedule" class="btn btn-secondary">Refresh</button>
+                        <button id="downloadPdf" class="btn btn-primary">📄 Download PDF</button>
+                    </div>
+                </div>
+                <div id="currentSchedule" class="schedule-grid">
+                    <p class="loading">Select a student to view their schedule</p>
+                </div>
+            </section>
+
+            <!-- Available Sections Section -->
+            <section class="available-sections">
+                <div class="section-header">
+                    <h2>📚 Available Sections</h2>
+                    <button id="refreshSections" class="btn btn-secondary">Refresh</button>
+                </div>
+                <div id="availableSections" class="sections-grid">
+                    <p class="loading">Select a student to view available sections</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="notification" class="notification" style="display: none;">
+            <span id="notificationMessage"></span>
+            <button id="closeNotification">&times;</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,10 +1,12 @@
-import { NestFactory } from '@nestjs/core'
 import { Logger, ValidationPipe, VersioningType } from '@nestjs/common'
-import { NestExpressApplication } from '@nestjs/platform-express'
 import { ConfigService } from '@nestjs/config'
+import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { NextFunction, Request, Response } from 'express'
 
-import { AppModule } from './app.module'
+import { AppModule } from './modules/app.module'
+
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import type { AppConfigType } from './config'
 
@@ -19,6 +21,16 @@ async function bootstrap() {
     type: VersioningType.URI,
   })
   app.setGlobalPrefix('api')
+
+  // Swagger setup
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('University Course Scheduling API')
+    .setDescription('API documentation for university course scheduling system')
+    .setVersion('1.0')
+    .addTag('Students')
+    .build()
+  const document = SwaggerModule.createDocument(app, swaggerConfig)
+  SwaggerModule.setup('api-docs', app, document)
 
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.removeHeader('x-powered-by')

@@ -21,3 +21,137 @@ model User {
   createdAt DateTime  @default(now()) @db.Timestamptz()
   updatedAt DateTime  @updatedAt @db.Timestamptz()
 }
+
+model Teacher {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstName   String
+  lastName    String
+  email       String @unique
+  phoneNumber String?
+  department  String?
+  title       String? // Professor, Associate Professor, Assistant Professor, etc.
+
+  sections Section[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  @@map("teachers")
+}
+
+model Subject {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code        String  @unique // e.g., "CS101", "MATH201"
+  name        String  // e.g., "Introduction to Computer Science"
+  description String?
+  credits     Int     @default(3)
+  department  String
+
+  sections Section[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  @@map("subjects")
+}
+
+model Classroom {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  number   String  @unique // e.g., "A101", "SCIENCE-205"
+  building String
+  capacity Int
+  type     String? // Lecture Hall, Lab, Seminar Room, etc.
+
+  sections Section[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  @@map("classrooms")
+}
+
+model Student {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId    String  @unique // University student ID
+  firstName    String
+  lastName     String
+  email        String  @unique
+  phoneNumber  String?
+  dateOfBirth  DateTime @db.Date
+  major        String?
+  yearLevel    Int? // 1, 2, 3, 4, etc.
+  gpa          Float?
+
+  enrollments SectionEnrollment[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  @@map("students")
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum SectionScheduleType {
+  MONDAY_WEDNESDAY_FRIDAY  // MWF
+  TUESDAY_THURSDAY         // TR
+  DAILY                    // Every day Monday-Friday
+  WEEKEND                  // Saturday/Sunday
+  CUSTOM                   // Custom schedule
+}
+
+model Section {
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionNumber     String              // e.g., "001", "002"
+  semester          String              // e.g., "Fall 2024", "Spring 2025"
+  year              Int
+  scheduleType      SectionScheduleType
+  customDays        DayOfWeek[]         // Used when scheduleType is CUSTOM
+  startTime         DateTime            @db.Time // e.g., 07:30, 09:00
+  endTime           DateTime            @db.Time // e.g., 08:20, 10:20
+  maxEnrollment     Int                 @default(30)
+  currentEnrollment Int                 @default(0)
+
+  // Foreign Keys
+  teacherId   String @db.Uuid
+  subjectId   String @db.Uuid
+  classroomId String @db.Uuid
+
+  // Relations
+  teacher   Teacher   @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  subject   Subject   @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  classroom Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+
+  enrollments SectionEnrollment[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz()
+  updatedAt DateTime @updatedAt @db.Timestamptz()
+
+  // Ensure unique section per subject/semester/year
+  @@unique([subjectId, sectionNumber, semester, year])
+  @@map("sections")
+}
+
+model SectionEnrollment {
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId String @db.Uuid
+  sectionId String @db.Uuid
+
+  enrolledAt DateTime @default(now()) @db.Timestamptz()
+  grade      String? // Final grade for the section
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+
+  // Ensure a student can only enroll once per section
+  @@unique([studentId, sectionId])
+  @@map("section_enrollments")
+}
